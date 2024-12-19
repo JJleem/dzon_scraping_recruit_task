@@ -92,7 +92,7 @@ export default function TokenManager() {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
+    <div className=" flex flex-col justify-center items-end text-sm text-gray-500 mt-3 gap-4">
       {remainingTime !== null ? (
         <>
           <h1>유효시간 관리</h1>
@@ -100,38 +100,43 @@ export default function TokenManager() {
             남은 유효시간:{" "}
             {remainingTime > 0 ? formatTime(remainingTime) : "만료됨"}
           </p>
-          <div style={{ marginTop: "20px" }}>
+          <div className="flex gap-3">
             <button
+              className="bg-white p-2 rounded-lg border border-gray-300"
               onClick={() => changeExpireTime(-1 * 60 * 1000)}
-              style={{ marginRight: "10px" }}
             >
               -1분
             </button>
             <button
+              className="bg-white p-2 rounded-lg border border-gray-300"
               onClick={() => changeExpireTime(-10 * 60 * 1000)}
-              style={{ marginRight: "10px" }}
             >
               -10분
             </button>
             <button
+              className="bg-white p-2 rounded-lg border border-gray-300"
               onClick={() => changeExpireTime(-60 * 60 * 1000)}
-              style={{ marginRight: "10px" }}
             >
               -1시간
             </button>
             <button
+              className="bg-white p-2 rounded-lg border border-gray-300"
               onClick={() => changeExpireTime(10 * 60 * 1000)}
-              style={{ marginRight: "10px" }}
             >
               +10분
             </button>
             <button
+              className="bg-white p-2 rounded-lg border border-gray-300"
               onClick={() => changeExpireTime(60 * 60 * 1000)}
-              style={{ marginRight: "10px" }}
             >
               +1시간
             </button>
-            <button onClick={handleImmediateExpire}>즉시 만료</button>
+            <button
+              className="bg-white p-2 rounded-lg border border-gray-300"
+              onClick={handleImmediateExpire}
+            >
+              즉시 만료
+            </button>
           </div>
         </>
       ) : null}

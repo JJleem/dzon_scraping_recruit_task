@@ -28,13 +28,18 @@ export default function LoginPage() {
         const decodedToken = JSON.parse(
           atob(data.data.accessToken.split(".")[1])
         );
+        const formatTimestamp = (timestamp: string | null) => {
+          if (!timestamp) return "정보 없음";
+          const date = new Date(Number(timestamp) * 1000); // 초 단위를 밀리초로 변환
+          return date.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }); // 한국 시간대로 변환
+        };
 
         dispatch(
           setAuth({
             token: data.data.accessToken,
             userId: decodedToken.identification,
             expireAt: (decodedToken.exp * 1000).toString(),
-            iat: new Date(decodedToken.iat * 1000).toISOString(),
+            iat: formatTimestamp(decodedToken.iat),
           })
         );
 
