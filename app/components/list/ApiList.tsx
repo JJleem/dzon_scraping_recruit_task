@@ -78,6 +78,8 @@ const ApiListPage = () => {
 
 const ApiTable = ({ apiList, token }: { apiList: any[]; token: string }) => {
   const dispatch = useDispatch();
+  const [popupData, setPopupData] = useState<any | null>(null);
+
   const handleApiCall = async (apiCd: string, mdulCustCd: string) => {
     const timestamp = new Date().toISOString(); // 현재 시간
     const apiName = apiList.find((api) => api.apiCd === apiCd)?.apiNm || "";
@@ -111,7 +113,7 @@ const ApiTable = ({ apiList, token }: { apiList: any[]; token: string }) => {
         })
       );
 
-      alert(`API 호출 성공: ${JSON.stringify(data, null, 2)}`);
+      setPopupData(data);
     } catch (error) {
       console.error("API 호출 에러:", error);
       alert("API 호출에 실패했습니다.");
@@ -166,6 +168,25 @@ const ApiTable = ({ apiList, token }: { apiList: any[]; token: string }) => {
           ))}
         </tbody>
       </table>
+      {/* 팝업 */}
+      {popupData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-md mb-4">응답 데이터</h2>
+            <div className="max-h-96 overflow-auto">
+              <pre className="whitespace-pre-wrap break-words">
+                {JSON.stringify(popupData, null, 1)}
+              </pre>
+            </div>
+            <button
+              onClick={() => setPopupData(null)}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

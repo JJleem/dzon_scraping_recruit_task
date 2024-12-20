@@ -10,7 +10,7 @@ const ScrpListPage = () => {
   const dispatch = useDispatch();
   const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
   const [popupData, setPopupData] = useState<any | null>(null);
-
+  console.log("history", history);
   // 정렬된 히스토리
   const sortedHistory = [...history].sort((a, b) => {
     if (a.isBookmarked !== b.isBookmarked) {
@@ -83,7 +83,7 @@ const ScrpListPage = () => {
               onClick={() => setPopupData(record)}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
             >
-              응답 보기
+              호출 하기
             </button>
           </li>
         ))}
@@ -93,8 +93,12 @@ const ScrpListPage = () => {
       {popupData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl mb-4">응답 데이터</h2>
-            <pre>{JSON.stringify(popupData, null, 2)}</pre>
+            <h2 className="text-md mb-4">응답 데이터</h2>
+            <div className="max-h-96 overflow-auto">
+              <pre className="whitespace-pre-wrap break-words">
+                {JSON.stringify(popupData, null, 1)}
+              </pre>
+            </div>
             <button
               onClick={() => setPopupData(null)}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
