@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { toggleBookmark } from "@/store/apiHistorySlice";
+import { deleteApiCall, toggleBookmark } from "@/store/apiHistorySlice";
 
 const ScrpListPage = () => {
   const history = useSelector((state: RootState) => state.apiHistory.history);
@@ -47,7 +47,7 @@ const ScrpListPage = () => {
 
       {/* 요청 내역 카드 */}
       <ul className="grid grid-cols-5 gap-4">
-        {sortedHistory.map((record, index) => (
+        {sortedHistory.map((record) => (
           <li
             key={record.id}
             className="border p-6 shadow-md flex flex-col gap-4 relative"
@@ -78,12 +78,20 @@ const ScrpListPage = () => {
               {record.isBookmarked ? "★" : "☆"}
             </button>
 
-            {/* 팝업 버튼 */}
+            {/* 호출 버튼 */}
             <button
               onClick={() => setPopupData(record)}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
             >
               호출 하기
+            </button>
+
+            {/* 삭제 버튼 */}
+            <button
+              onClick={() => dispatch(deleteApiCall(record.id))}
+              className="mt-2 px-4 py-2 bg-red-500 text-white rounded"
+            >
+              삭제 하기
             </button>
           </li>
         ))}

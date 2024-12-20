@@ -61,8 +61,15 @@ const apiHistorySlice = createSlice({
         saveState(state.history); // 상태 변경 후 localStorage에 저장
       }
     },
+    deleteApiCall(state, action: PayloadAction<string>) {
+      state.history = state.history.filter(
+        (record) => record.id !== action.payload
+      );
+      saveState(state.history); // 상태 변경 후 localStorage에 저장
+    },
   },
 });
 
-export const { addApiCall, toggleBookmark } = apiHistorySlice.actions;
+export const { addApiCall, toggleBookmark, deleteApiCall } =
+  apiHistorySlice.actions;
 export default apiHistorySlice.reducer;
