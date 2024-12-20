@@ -60,30 +60,43 @@ export default function LoginPage() {
 
   return (
     <main
-      style={{ textAlign: "center", marginTop: "50px" }}
+      className=" w-full h-[100vh] flex justify-center items-center flex-col  bg-no-repeat bg-cover bg-[url('/bg.jpg')] "
       onKeyDown={handleKeyDown}
     >
-      <h1>로그인</h1>
-      <input
-        type="text"
-        placeholder="아이디"
-        value={admUserId}
-        onChange={(e) => setAdmUserId(e.target.value)}
-        style={{ marginBottom: "10px", padding: "5px" }}
-      />
-      <br />
-      <input
-        type="password"
-        placeholder="비밀번호"
-        value={userPw}
-        onChange={(e) => setUserPw(e.target.value)}
-        style={{ marginBottom: "10px", padding: "5px" }}
-      />
-      <br />
-      <button onClick={handleLogin} style={{ padding: "5px 10px" }}>
-        로그인
-      </button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <div className=" bg-white flex justify-center items-center flex-col shadow-lg px-20 pb-10 pt-10 gap-8 rounded-md">
+        <span className="w-[100px] h-[40px]  bg-no-repeat bg-cover bg-[url('/logo.svg')]" />
+        <div className="flex flex-col justify-center items-center borderw -full gap-5">
+          <input
+            type="text"
+            placeholder="아이디"
+            value={admUserId}
+            onChange={(e) => setAdmUserId(e.target.value)}
+            className="min-w-[332px] border border-gray-400 p-2 rounded-md pl-4"
+          />
+
+          <input
+            type="password"
+            placeholder="비밀번호"
+            value={userPw}
+            onChange={(e) => setUserPw(e.target.value)}
+            className="w-full border border-gray-400 p-2 rounded-md pl-4"
+          />
+
+          <button
+            onClick={handleLogin}
+            className="w-full bg-NauticalBlue py-2 rounded-md text-white"
+          >
+            로그인
+          </button>
+          <div className="w-full h-[20px]">
+            {error && (
+              <p className=" text-red-500 w-[100%]  text-ellipsis overflow-hidden">
+                {error}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
