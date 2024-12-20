@@ -1,11 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
-import scrpReducer from "./srcpSlice";
-
+import apiHistoryReducer from "./apiHistorySlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    scraping: scrpReducer,
+    apiHistory: apiHistoryReducer,
   },
 });
 
