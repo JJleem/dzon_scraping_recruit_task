@@ -67,6 +67,8 @@ Page 2. "/app-list" : API 목록 조회 및 호출 목록 조회 페이지
 
 ## 1. 로그인 페이지
 
+![Login]("//ecimg.cafe24img.com/pg972b74884267083/leemjaejun/login.png")
+
 ### 1) 로그인 기능 구현
 
 - **제공된 엔드포인트**로 `POST` 요청을 보내, 서버에서 로그인 검증을 받은 뒤 **JWT(JSON Web Token)** 을 발급받습니다.
@@ -143,6 +145,8 @@ Page 2. "/app-list" : API 목록 조회 및 호출 목록 조회 페이지
 <br />
 
 ## TokenManager (유효시간 관리 컴포넌트)
+
+![TokenManager]("//ecimg.cafe24img.com/pg972b74884267083/leemjaejun/tokenmanager.png")
 
 ### 1) 컴포넌트 역할
 
