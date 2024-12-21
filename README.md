@@ -43,8 +43,7 @@ http://localhost:3000
 # 📝 Routing 구조
 
 Page 1. "/" : 로그인 페이지
-Page 2. "/app-list" : 책 상세 정보 페이지/뷰 구현
-Page 3. "/bookDetail/[id]/edit" : 책 정보 수정 페이지 구현
+Page 2. "/app-list" : API 목록 조회 및 호출 목록 조회 페이지
 
 <br />
 
@@ -66,183 +65,119 @@ Page 3. "/bookDetail/[id]/edit" : 책 정보 수정 페이지 구현
 
 # ✅ 주요 기능
 
-## 1. 책 목록 페이지 구현
+## 1. 로그인 페이지
 
-### 1. Google Books API 호출
+### 1) 로그인 기능 구현
 
-- 주어진 ISBN 목록을 기반으로 /api/books 엔드포인트를 호출하여 책 정보를 가져옵니다.
+- **제공된 엔드포인트**로 `POST` 요청을 보내, 서버에서 로그인 검증을 받은 뒤 **JWT(JSON Web Token)** 을 발급받습니다.
+- 서버로부터 전달받은 `accessToken`을 **로컬 스토리지(localStorage)**에 저장하여, 브라우저 새로고침 시에도 세션 정보를 유지하도록 했습니다.
+- 토큰 디코딩 과정에서는 `iat(발급 시점)`과 `exp(만료 시점)` 값을 추출하여, 이후 유효시간 검증에 활용합니다.
 
-<br>
+### 2) 상태 관리와 화면 전환
 
-### 2. 에러 처리
+- **Redux Toolkit**을 사용하여 `authSlice`에서 토큰과 사용자 정보를 관리합니다.
+- 로그인 성공 시 `dispatch(setAuth(...))`로 토큰 및 유저 정보를 Redux 전역 상태에 반영하고, `localStorage`에도 동기화합니다.
+- **Next.js의 `router.push`**를 통해 로그인 성공 후 특정 페이지(`api-list`)로 라우팅하여, 사용자가 로그인 후 기능 페이지에 즉시 접근할 수 있도록 했습니다.
+- 로그인 실패 시 서버에서 전송되는 `errYn` 또는 `msg` 값을 확인하여, 에러 메시지를 UI에 표시하고, 디버깅이 용이하도록 콘솔에 함께 로깅합니다.
 
-- API 호출 중 에러가 발생하면 이를 콘솔에 출력하고 사용자에게 메시지를 표시합니다.
+### 3) UI 및 사용자 경험
 
-<br>
+- **아이디와 비밀번호**를 입력받는 간단한 폼을 구성하였으며, Tailwind CSS로 스타일링을 적용했습니다.
+- 사용자가 **Enter** 키를 누르는 경우에도 로그인 요청이 실행되도록 `onKeyDown` 이벤트를 처리했습니다.
+- 에러 메시지는 빨간색 텍스트로 노출되어, 사용자가 로그인이 실패했음을 직관적으로 파악할 수 있습니다.
 
-### 3. Redux로 상태 저장
+<br />
 
-- API 호출 결과로 얻은 데이터를 Redux 상태 관리(store/booksSlice.tsx)에 저장합니다.
+## 2. 유효시간 체크
 
-<br>
+### 1) JWT 만료 시간 확인
 
-### 4. 로컬 스토리지 동기화
+- **JWT**가 발급될 때 토큰에 포함되는 `exp`(만료 시간) 값을 로컬 스토리지와 Redux 상태에 함께 저장합니다.
+- 매 요청 전, 혹은 특정 **주기적 검사(Interval)** 또는 **페이지 접근 시** `exp` 값을 확인하여 현재 시간과 비교합니다.
+- 만료 시간이 지났다면 자동으로 로그아웃을 트리거해 사용자에게 재인증을 요구합니다.
 
-- 책 데이터를 로컬 스토리지에 저장하여 캐싱하거나 이후에 재사용할 수 있도록 합니다.
+### 2) 자동 로그아웃 처리
 
-<br>
+- `clearAuth` 액션을 통해 Redux 상태와 `localStorage`에 저장된 토큰 관련 정보를 모두 삭제합니다.
+- 만료 또는 로그아웃 시 **Next.js의 `router.push`**를 사용해 로그인 페이지로 강제 이동시켜, 더 이상 인증이 만료된 사용자가 보호된 페이지에 머무르지 않도록 합니다.
+- 이 로직을 **클라이언트 측에서만** 수행하기 위해, `useEffect` 등을 통해 브라우저 환경임을 확인한 뒤 체크하는 방식을 자주 택합니다.
 
-### 5. 로딩 상태 관리
+### 3) 보안 고려사항
 
-- setLoading으로 API 호출 중인지 여부를 상태로 관리하여 사용자에게 로딩 상태를 시각적으로 전달할 수 있습니다.
+- 원칙적으로 **JWT**를 클라이언트에서 보관할 때는 `localStorage`보다는 **HTTPOnly 쿠키**를 권장하지만, 이번 구현에서는 간편함과 빠른 개발을 위해 `localStorage`를 사용했습니다.
+- 민감한 정보는 가능한 **JWT 페이로드** 내에 최소화하고, 추가 보안이 필요한 경우 **Refresh Token** 전략을 고려할 수 있습니다.
 
-<br>
+<br />
 
-### 6. Pagination 구현
+## 3. 사용된 기술
 
-- filterBooks.length와 booksPerPage로 총 페이지 수(totalPages)를 계산합니다.
+### 1) Next.js (13+ 버전)와 React
 
-- 현재 페이지(currentPage)와 booksPerPage에 따라 currentBooks를 슬라이싱하여 보여줄 데이터를 추출합니다.
+- **App Router(`app` 디렉토리)** 기반으로, 화면 전환과 서버-클라이언트 간 데이터 연동을 간편화했습니다.
+- **서버 컴포넌트**와 **클라이언트 컴포넌트** 분리로, 인증 로직은 클라이언트 컴포넌트(`"use client"`)에서 처리하도록 구성했습니다.
 
-- 이전/다음 버튼을 통해 페이지를 전환하며, 페이지 이동에 따른 상태 업데이트를 처리합니다.
+### 2) Redux Toolkit
 
-<br>
+- 로그인 상태를 전역으로 관리하기 위해 **Redux Slice**를 사용했습니다.
+- `createSlice`로 `authSlice`를 정의하고, **토큰 저장**과 **토큰 제거**를 직관적인 액션(`setAuth`, `clearAuth`)으로 관리합니다.
+- Redux 상태 변경 시 **로컬 스토리지**와 즉시 동기화하여, 페이지 새로고침 이후에도 저장된 데이터를 복원합니다.
 
-### 7. 목록 UI 구현
+### 3) 로컬 스토리지와 JWT
 
-- 각 책 데이터를 map 함수로 순회하며, Tailwind CSS를 활용해 반응형 그리드 레이아웃으로 책 목록을 표시합니다.
+- **로컬 스토리지**: 사용자 토큰과 만료 시간을 저장하고, 필요 시 바로 읽어올 수 있도록 구현했습니다.
+- **JWT 파싱**: `atob` 함수를 통해 토큰의 페이로드를 디코딩하고, 만료 시간(`exp`)과 발급 시점(`iat`), 그리고 사용자 식별자(`identification`) 등의 정보를 추출합니다.
+- **재사용성**: 추후 API 호출 시 헤더에 토큰을 실어 서버에 인증을 보낼 수 있도록, Redux 상태에서 토큰을 가져와 사용합니다.
 
-- 책 표지, 제목, 서브 타이틀, 저자, 출판사, 출판일자, 설명, 판매량, 남은 수량 등의 정보를 렌더링합니다.
+<br />
 
-- router.push를 이용해 상세 페이지로 이동할 수 있는 버튼을 구현합니다.
+## 정리
 
-<br>
+이 프로젝트는 **로그인 후 권한이 필요한 페이지**에 접근할 수 있도록 하는 **인증/인가 시스템**으로,
 
-### 8. 검색어 입력 처리
+- **Next.js**로 UI/라우팅을 구성하고,
+- **Redux Toolkit**으로 토큰/유저정보를 전역 관리,
+- **JWT** 만료 시간을 확인해 자동으로 로그아웃하는 로직을 구현했습니다.
 
-- 사용자가 입력한 검색어(searchTerm)를 toLowerCase로 변환하여 대소문자 구분 없이 필터링을 수행합니다.
-- 책 제목(title)과 저자(authors)를 검색어와 비교합니다.
-- 저자 정보가 없는 경우 || ""로 기본값을 처리합니다.
-- 검색어가 비어 있거나 공백만 포함된 경우, 전체 책 목록(books)을 반환합니다.
-- 검색어가 포함된 책 제목 또는 저자를 기준으로 필터링된 결과를 반환합니다.
-- useMemo를 사용하여 searchTerm나 books가 변경될 때만 필터링을 재계산합니다. 이로 인해 불필요한 렌더링을 방지합니다.
+이를 통해 유지보수성과 보안성을 모두 고려하면서도, 사용자가 재로그인 없이 **원활하게 서비스를 이용**할 수 있는 환경을 제공했습니다.
 
-<br>
+<br />
 
-## 2. 책 상세 정보 페이지/뷰 구현
+## TokenManager (유효시간 관리 컴포넌트)
 
-### 1. 데이터 로드 및 상태 관리
+### 1) 컴포넌트 역할
 
-- params로 전달된 id 값을 기반으로 Redux에서 책(book)과 판매 정보(sale) 데이터를 로드합니다.
-- useState로 각종 상태를 관리:
-  - editableBook: 수정 가능한 책 정보.
-  - salesCount & stockCount: 판매량 및 재고 수량.
-  - newImage & isUploading: 이미지 업로드 상태.
+- **토큰의 만료 시간**(expireAt)을 모니터링하여, 남은 시간이 0이 되면 **자동으로 로그아웃**을 수행합니다.
+- 로그인 후 부여된 토큰의 유효시간을 늘리거나 줄여볼 수 있는 버튼들을 제공하여, 실시간으로 만료 시점을 변경할 수 있습니다.
 
-<br>
+### 2) 유효시간 추적 로직
 
-### 2. 책 데이터 수정
+- `remainingTime` 상태를 매 1초마다 갱신(`setInterval`)하여, `localStorage`에 저장된 `expireAt`과 현재 시간을 비교합니다.
+- 만약 `remainingTime`이 0 이하가 되면 만료로 간주하고 **로그아웃**을 유도합니다.
+- 유효시간이 정상적으로 남아 있는 경우, `formatTime` 함수를 통해 **사람이 읽기 쉬운 형태**(시, 분, 초)로 변환해 화면에 표시합니다.
 
-- 사용자가 책 제목, 서브 타이틀, 저자, 판매량, 재고 수량을 수정 가능.
-- 이미지 파일을 업로드하여 Cloudinary API를 통해 저장 후, 썸네일 URL 업데이트.
+### 3) 만료 시간 변경 기능
 
-<br>
+- **+/- 버튼**: `changeExpireTime(deltaDuration)` 함수를 통해 `expireAt`을 `deltaDuration`만큼 조정할 수 있습니다.
+  - 예: `-1분`, `-10분`, `+10분`, `+1시간` 등 버튼 클릭 시 만료 시점을 앞당기거나 늦춥니다.
+- **즉시 만료**: `handleImmediateExpire` 함수를 사용하여 만료 시간을 0으로 설정하고, **바로 로그아웃 처리**를 합니다.
+- 만료 시점이 현재 시간(`Date.now()`) 이하가 되면 만료로 보고 `handleLogout()`을 호출해, **Redux** 상태와 `localStorage`에서 인증 정보를 제거한 뒤 **로그인 페이지**로 리다이렉트합니다.
 
-### 3. Redux 및 로컬 스토리지 업데이트
+### 4) 로그아웃 처리
 
-- 수정 완료 후, Redux의 updateBook 및 updateSale 액션을 통해 상태를 업데이트.
-- 수정된 데이터를 localStorage에도 동기화.
+- `clearAuth()` 액션을 디스패치해 **Redux**의 `auth` 관련 상태(토큰, 유저 정보 등)와 브라우저 `localStorage`에 저장된 값들을 모두 제거합니다.
+- `router.push("/")`로 **로그인 페이지**로 이동하여, 만료된 사용자가 더 이상 보호된 페이지에 머무르지 않도록 합니다.
 
-<br>
+### 5) 사용된 기술
 
-## 3. 책 추가/제거 및 수량 조절 기능
+- **React**와 **Next.js**: 컴포넌트 구조 및 라우팅을 담당. `"use client"`를 통해 클라이언트 컴포넌트로 동작.
+- **Redux Toolkit**: `clearAuth` 액션으로 전역 인증 상태를 한 번에 처리.
+- **localStorage**: 토큰 만료 시점(`expireAt`)을 저장하고 수정하며, 컴포넌트에서 이를 **실시간 체크**하여 만료 여부를 판별.
 
-### 1. 사용자 입력 데이터 관리
+<br />
 
-- useState를 사용해 책 정보 및 판매 데이터를 상태로 관리.
-  - 책 정보: 제목, 서브타이틀, 저자, 출판사, 출판일, 설명, 이미지.
-  - 판매 데이터: 판매 수량, 남은 수량.
+## 정리
 
-<br>
+이 `TokenManager` 컴포넌트는 **JWT 토큰 유효시간**을 실시간으로 추적·조정하며, 만료 시점이 지나면 **자동 로그아웃**하는 핵심 로직을 담당합니다.  
+이를 통해 **사용자 세션**을 안전하고 유연하게 관리하고, 테스팅 시 **만료 시점**을 자유롭게 바꿔 볼 수 있는 **개발 유틸** 역할도 수행합니다.
 
-### 2. 이미지 업로드
-
-- 사용자가 이미지를 업로드하면 Cloudinary API를 통해 서버에 업로드한 후, 반환된 URL을 책 데이터에 추가.
-- 업로드 진행 상태를 isUploading 상태로 관리하여 중복 요청 방지 및 사용자에게 상태를 표시.
-
-<br>
-
-### 3. Redux 상태 업데이트
-
-- 입력된 데이터를 기반으로 Redux의 addBook 및 addSale 액션을 호출하여 새로운 책과 판매 데이터를 전역 상태에 추가.
-
-<br>
-
-### 4. 삭제 기능
-
-- dispatch(removeBook(id))와 dispatch(removeSale(id))를 호출하여 Redux 상태에서 책과 판매 데이터를 제거.
-- 책 목록과 판매 데이터를 필터링하여 삭제된 데이터를 제외한 새 목록을 localStorage 에 저장.
-
-<br>
-
-# 📋 폴더 구조
-
-```
-rgt-task
-├─ .gitignore
-├─ app
-│  ├─ addBook
-│  │  └─ page.tsx
-│  ├─ api
-│  │  └─ books
-│  │     └─ route.ts
-│  ├─ bookDetail
-│  │  └─ [id]
-│  │     ├─ edit
-│  │     │  └─ page.tsx
-│  │     └─ page.tsx
-│  ├─ favicon.ico
-│  ├─ globals.css
-│  ├─ layout.tsx
-│  ├─ LocalBooksOnCLient.tsx
-│  ├─ page.tsx
-│  └─ scrollCss.css
-├─ assets
-│  └─ icon
-│     ├─ arrow_Peach.png
-│     ├─ search.svg
-│     └─ settings.png
-├─ components
-│  └─ common
-│     ├─ aside
-│     │  └─ Aside.tsx
-│     ├─ books
-│     │  ├─ Books.tsx
-│     │  └─ BooksSpinner.css
-│     ├─ footer
-│     │  └─ Footer.tsx
-│     ├─ header
-│     │  └─ Header.tsx
-│     └─ profile
-│        └─ ProfileSection.tsx
-├─ eslint.config.mjs
-├─ next.config.ts
-├─ package-lock.json
-├─ package.json
-├─ postcss.config.mjs
-├─ public
-│  ├─ file.svg
-│  ├─ globe.svg
-│  ├─ next.svg
-│  ├─ vercel.svg
-│  └─ window.svg
-├─ store
-│  ├─ booksSlice.tsx
-│  ├─ isbnSlice.tsx
-│  ├─ saleSlice.tsx
-│  ├─ store.tsx
-│  └─ toggleSlice.tsx
-├─ tailwind.config.ts
-└─ tsconfig.json
-
-```
+<br />
