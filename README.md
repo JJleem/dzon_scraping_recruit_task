@@ -67,7 +67,7 @@ Page 2. "/app-list" : API 목록 조회 및 호출 목록 조회 페이지
 
 ## 1. 로그인 페이지
 
-![Login]("//ecimg.cafe24img.com/pg972b74884267083/leemjaejun/login.png")
+![Login](//ecimg.cafe24img.com/pg972b74884267083/leemjaejun/login.png)
 
 ### 1) 로그인 기능 구현
 
@@ -146,7 +146,7 @@ Page 2. "/app-list" : API 목록 조회 및 호출 목록 조회 페이지
 
 ## TokenManager (유효시간 관리 컴포넌트)
 
-![TokenManager]("//ecimg.cafe24img.com/pg972b74884267083/leemjaejun/tokenmanager.png")
+![TokenManager](//ecimg.cafe24img.com/pg972b74884267083/leemjaejun/tokenmanager.png)
 
 ### 1) 컴포넌트 역할
 
