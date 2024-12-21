@@ -15,6 +15,11 @@ export default function RootLayout({
   const router = useRouter();
 
   useEffect(() => {
+    // 이 부분에서 동적으로 타이틀 설정
+    document.title = "스크래핑 사업본부 채용과제 (임재준)";
+  }, []);
+
+  useEffect(() => {
     const expireAt = localStorage.getItem("expireAt");
     if (!expireAt) return;
 
