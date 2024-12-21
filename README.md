@@ -229,14 +229,14 @@ Page 2. "/app-list" : API 목록 조회 및 호출 목록 조회 페이지
 
 - **요구 사항**에 따라 테이블은 다음과 같은 컬럼으로 구성됩니다:
 
-  1. API 이름 (apiNm)
-  2. API 코드 (apiCd)
-  3. API 설명 (apiDesc)
-  4. 모듈 코드 (mdulCustCd)
-  5. 모듈 이름 (mdulNm)
-  6. 키워드 코드 (kwrdCd)
-  7. 키워드 이름 (kwrdNm)
-  8. 제공기관 (prvr)
+1. API 이름 (apiNm)
+2. API 코드 (apiCd)
+3. API 설명 (apiDesc)
+4. 모듈 코드 (mdulCustCd)
+5. 모듈 이름 (mdulNm)
+6. 키워드 코드 (kwrdCd)
+7. 키워드 이름 (kwrdNm)
+8. 제공기관 (prvr)
 
 - 각 **API 코드, 모듈 코드** 칸에는 “호출” 버튼이 배치되어, 클릭 시 스크래핑 데이터를 요청합니다.
 
