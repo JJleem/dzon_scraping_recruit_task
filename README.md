@@ -208,7 +208,6 @@ http://localhost:3000
    - `totalCount`를 서버 응답에서 받아와 페이지 수(`totalPages`)를 계산하고, 현재 페이지(`currentPage`) 정보를 반영해 테이블 데이터를 재로딩합니다.
 3. **UI 구성**
    - **Tailwind CSS**로 테이블을 꾸미고, 각 행에 **API 정보**(apiNm, apiCd, apiDesc, mdulCustCd, mdulNm 등)를 표시합니다.
-   - 사용자가 **페이지 변경** 버튼을 누르면, 해당 페이지 번호에 맞는 API 목록을 재호출(fetch)하여 테이블을 업데이트합니다.
 
 <br />
 
